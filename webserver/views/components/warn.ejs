@@ -1,0 +1,21 @@
+<%const dateString = moment(warnInfo.date)%>
+<tr>
+    <td style="text-align: center">
+        <%= dateString.format('YYYY-MM-DD hh:mm:ss') %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <a><%= warnInfo.steamID %></a>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= warnInfo.charName %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= warnInfo.adminID %>
+    </td>
+    <td>
+        <%= warnInfo.reason %>
+    </td>
+    <td style="text-align: center">
+        <a onclick="removeWarn('<%= warnInfo._id %>')">삭제</a>
+    </td>
+</tr>

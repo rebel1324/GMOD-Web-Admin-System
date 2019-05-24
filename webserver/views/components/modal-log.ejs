@@ -1,0 +1,122 @@
+<style>
+    .modal .modal-card .modal-card-body p.data-title {
+        font-size: 1.2rem
+    }
+</style>
+
+<div class="modal" id="modal_log">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">로그 상세기록</p>
+      <button class="delete" aria-label="close" onclick="closeModal(event)"></button>
+    </header>
+    <section class="modal-card-body">
+      <div>
+        <p class="data-title">로그 행 ID</p>
+        <p id="modal_log_uid"></p>
+      </div>
+      <div>
+        <p class="data-title">로그 기록일</p>
+        <p id="modal_log_date"></p>
+      </div>
+      <div>
+        <p class="data-title">기록된 메세지</p>
+        <p id="modal_log_msg"></p>
+      </div>
+      <div>
+        <p class="data-title">로그 관련인</p>
+        <div id="info_template_target">
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button" onclick="closeModal(event)">닫기</button>
+    </footer>
+  </div>
+</div>
+
+<div id="info_template" style="visibility: hidden">
+    <p class="data-title">관련자 <span data-index></span></p>
+    <table class="table" width="100%">
+        <thead>
+            <th style="text-align: center" width="20%">Key</th>
+            <th style="text-align: center" width="80%">Value</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IP</td>  <td data-ip></td>
+            </tr><tr>
+                <td>스팀 닉네임</td>  <td data-steamname></td>
+            </tr><tr>
+                <td>직업 이름</td>  <td data-job></td>
+            </tr><tr>
+                <td>이름</td>  <td data-name></td>
+            </tr><tr>
+                <td>스팀 아이디</td>  <td data-steamID></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const modalLog = document.querySelector('#modal_log');
+    const modalTableTemplate = document.querySelector('#info_template');
+    const modalTableTemplateTarget = document.querySelector('#info_template_target');
+
+    const dataDOM = {
+        uid: document.querySelector('#modal_log_uid'),
+        date: document.querySelector('#modal_log_date'),
+        message: document.querySelector('#modal_log_msg')
+    }
+
+    const dataRowList = [
+        'ip', 'steamname', 'jobName', 'name', 'steamID'    
+    ]
+
+    const showModalWithData = (event) => {
+        const target = event.target
+
+        if (target) {
+            const logInfo = target.getAttribute("data-info")
+
+            if (logInfo) {
+                const jsonData = JSON.parse(logInfo)
+                
+                dataDOM.uid.innerHTML = escape(jsonData._id)
+                dataDOM.date.innerHTML = jsonData.date
+                dataDOM.message.innerHTML = jsonData.message
+
+                let index = 0
+                modalTableTemplateTarget.innerHTML = ""
+                jsonData.information.forEach(object => {
+                    const clone = modalTableTemplate.cloneNode(true)
+                    modalTableTemplateTarget.appendChild(clone)
+
+                    clone.querySelector('[data-index]').innerHTML = index
+                    index++
+
+                    const tableRowDOM = {
+                        ip: clone.querySelector('[data-ip]'),
+                        steamname: clone.querySelector('[data-steamname]'),
+                        jobName: clone.querySelector('[data-job]'),
+                        name: clone.querySelector('[data-name]'),
+                        steamID: clone.querySelector('[data-steamID]')
+                    }
+
+                    dataRowList.forEach(dataCol => {
+                        tableRowDOM[dataCol].innerHTML = object[dataCol]
+                    })
+                    clone.style.visibility = "visible"
+                })
+
+                modalLog.classList.add('is-active')
+            }
+        } else {
+            alert('잘못된 접근입니다.')
+        }
+    }
+    const closeModal = (event) => {
+        modalLog.classList.remove('is-active')
+    }
+</script>

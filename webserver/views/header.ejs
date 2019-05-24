@@ -1,0 +1,62 @@
+<nav class="navbar" role="navigation" aria-label="main navigation">
+	<div class="container">
+		<div class="navbar-brand">
+			<a class="navbar-item" href="/">
+				<strong>통합 정보 시스템</strong>
+			</a>
+		</div>
+
+		<div id="navbarBasicExample" class="navbar-menu">
+			<div class="navbar-start">
+				<a class="navbar-item">
+					리더보드
+				</a>
+
+				<a class="navbar-item" href="/chat">
+					OOC 채팅
+				</a>
+
+				<div class="navbar-item has-dropdown is-hoverable">
+					<a class="navbar-link">
+						관리자 전용 메뉴
+					</a>
+
+					<div class="navbar-dropdown">
+						<a class="navbar-item" href="/mod">
+							플레이어 관리
+						</a>
+						<a class="navbar-item" href="/logmate">
+							로그 보기
+						</a>
+						<a class="navbar-item" href="/warns">
+							경고 관리
+						</a>
+						<a class="navbar-item" href="/bans">
+							밴 관리
+						</a>
+						<hr class="navbar-divider">
+						<a class="navbar-item">
+							MOTD 수정
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="buttons">
+						<%if (user && user.displayName) { %>
+							<a class="button is-primary" href="/api/logout">
+								<strong>로그아웃</strong>
+							</a>
+						<%} else { %>
+							<a class="button is-primary" href="/api/verify">
+								<strong>로그인</strong>
+							</a>
+						<%}%>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+</nav>

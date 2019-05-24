@@ -1,0 +1,26 @@
+<%
+    var dateString = logInfo.date && moment(logInfo.date)
+%>
+<tr>
+    <td style="text-align: center">
+        <%= dateString ? dateString.format('YYYY-MM-DD hh:mm:ss') : "언젠가" %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <a><%= (logInfo.information[0] && logInfo.information[0].steamID) ? logInfo.information[0].steamID : "없음" %></a>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%=  logInfo.information[0] && logInfo.information[0].name || "없음" %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= categoryName[logInfo.category] || logInfo.category %>
+    </td>
+    <td>
+        <%= logInfo.message || "-" %>
+    </td>
+    <td style="text-align: center">
+        <a data-info="<%= JSON.stringify(logInfo) %>" onclick="showModalWithData(event)">정보</a>
+    </td>
+    <td style="text-align: center">
+        <a>관리</a>
+    </td>
+</tr>

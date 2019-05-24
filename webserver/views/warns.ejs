@@ -1,0 +1,70 @@
+<html>
+	<head>
+		<%- include('includes'); %>
+	</head>
+
+	<body>
+		<%- include('header', {user: user}); %>
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container">
+					<%if (user && user.displayName) { %>
+						<h1 class="title">
+							환영합니다, <%user.displayName%>
+						</h1>
+						<h2 class="subtitle">
+							귀하의 정보 접근 레벨은 <%= user.isAdministrator || 0%>입니다. 
+						</h2>
+					<%} else { %>
+						<h1 class="title">
+							서버정보시스템
+						</h1>
+						<h2 class="subtitle">
+							서버정보시스템에 오신것을 환영합니다. 이곳에서 서버에 관한 정보 및 패치 내용을 볼 수 있습니다. 
+						</h2>
+					<%}%>
+				</div>
+			</div>
+		</section>
+
+		<div class="container" style="margin-top: 20px; margin-bottom: 20px">
+			<table class="table" style="width: 100%">
+				<thead>
+					<tr>
+						<th style="text-align: center" width="14%">시간</th>
+						<th style="text-align: center" width="14%">아이디</th>
+						<th style="text-align: center" width="14%">경고 대상</th>
+						<th style="text-align: center" width="14%">관리자</th>
+						<th style="text-align: center" width="28%">경고 메세지</th>
+						<th style="text-align: center" width="7%">삭제</th>
+					</tr>
+				</thead>
+				<tbody>
+					<%if (warns) { %>
+						<% warns.forEach(function(warnInfo) { %>
+                            <%- include('components/warn', {moment: moment, warnInfo: warnInfo}); %>
+						<% }); %>
+					<% } %>
+				</tbody>
+			</table>
+		</div>
+
+		<script>
+			const removeWarn = (warn) => {
+				fetch("/api/warn/remove/" + warn, {
+					method: "POST"
+				}).then(data => {
+					console.log(data)
+					if (data.status == 200) {
+						location.reload()
+					} else {
+						alert("에러 발생! 블랙티에게 문의해주세요.")
+					}
+				}).catch(error => {
+					alert(error)
+				})
+			}
+		</script>
+		<%- include('footer', {user: user}); %>
+	</body>
+</html>

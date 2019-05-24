@@ -1,0 +1,26 @@
+{
+  "name": "logger",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "ejs": "^2.6.1",
+    "express": "~4.16.0",
+    "express-react-engine": "^1.0.0",
+    "express-session": "^1.15.6",
+    "http-errors": "~1.6.2",
+    "moment": "^2.24.0",
+    "mongoose": "^5.4.6",
+    "morgan": "~1.9.0",
+    "net": "^1.0.2",
+    "normalize.css": "^8.0.1",
+    "passport": "^0.4.0",
+    "passport-steam": "^1.0.10",
+    "socket.io": "^2.2.0"
+  }
+}

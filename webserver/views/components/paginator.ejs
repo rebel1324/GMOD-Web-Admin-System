@@ -1,0 +1,16 @@
+<div class="field has-addons" style="margin-top: 10px">
+	<p class="control">
+		<a class="button" onclick="goToPrevPage(<%= page %>)">
+			<span class="icon">
+				< </span> </a> </p> <p class="control" style="width: 75px">
+					<input class="input" type="text" placeholder="페이지" value="<%= page %>"
+					onkeypress="if (event.keyCode==13) {goToThatPage(event); return false;}">
+	</p>
+	<p class="control">
+		<a class="button" onclick="goToNextPage(<%= page %>)">
+			<span class="icon">
+				>
+			</span>
+		</a>
+	</p>
+</div>

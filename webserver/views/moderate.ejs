@@ -1,0 +1,223 @@
+<html>
+	<head>
+		<%- include('includes'); %>
+	</head>
+
+	<body>
+        <%- include('header', {user: user}); %>
+        
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container">
+					<%if (user && user.displayName) { %>
+						<h1 class="title">
+							환영합니다, <%user.displayName%>
+						</h1>
+						<h2 class="subtitle">
+							귀하의 정보 접근 레벨은 <%= user.isAdministrator || 0%>입니다. 
+						</h2>
+					<%} else { %>
+						<h1 class="title">
+							서버정보시스템
+						</h1>
+						<h2 class="subtitle">
+							서버정보시스템에 오신것을 환영합니다. 이곳에서 서버에 관한 정보 및 패치 내용을 볼 수 있습니다. 
+						</h2>
+					<%}%>
+				</div>
+			</div>
+        </section>
+
+		<div class="container" style="margin-top: 20px; margin-bottom: 20px">
+            <div class="notification" id="noti" hidden>
+                <button class="delete" onclick="hideme()""></button>
+                <div id="notitext">
+                    Primar lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit lorem ipsum dolor. <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus diam, et dictum <a>felis venenatis</a> efficitur. Sit amet,
+                    consectetur adipiscing elit
+                </div>
+            </div>
+
+			<table class="table" style="width: 100%">
+				<thead>
+					<tr>
+						<th style="text-align: center" width="7%">No</th>
+						<th style="text-align: center" width="7%">관리자?</th>
+						<th style="text-align: center" width="28%">스팀 이름</th>
+						<th style="text-align: center" width="28%">게임 이름</th>
+						<th style="text-align: center" width="10%">경고</th>
+						<th style="text-align: center" width="10%">강퇴</th>
+						<th style="text-align: center" width="10%">차단</th>
+					</tr>
+				</thead>
+                <tbody id="row_template_target">
+				</tbody>
+			</table>
+        </div>
+        
+        <table hidden>
+            <tr id="row_template">
+                <td style="text-align: center" data-index>
+                </td>
+                <td style="text-align: center;" data-admin>
+                </td>
+                <td style="text-align: center; text-overflow: ellipsis;" data-name>
+                </td>
+                <td style="text-align: center; text-overflow: ellipsis;" data-gamename>
+                </td>
+                <td style="text-align: center">
+                    <a data-warn>경고</a>
+                </td>
+                <td style="text-align: center">
+                    <a data-kick>강퇴</a>
+                </td>
+                <td style="text-align: center">
+                    <a data-ban>차단</a>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+            const notiDOM = document.querySelector('#noti');
+            const notiContextDOM = document.querySelector('#notitext');
+            const hideme = event => {
+                notiDOM.setAttribute("hidden", true); 
+            }
+            const notime = (text, newClass) => {
+                if (newClass) {
+                    notiDOM.classList.remove("is-link")
+                    notiDOM.classList.remove("is-primary")
+                    notiDOM.classList.remove("is-info")
+                    notiDOM.classList.remove("is-warning")
+                    notiDOM.classList.remove("is-danger")
+
+                    notiDOM.classList.add(newClass);
+                }
+
+                notiDOM.removeAttribute("hidden")
+                notiContextDOM.innerHTML = text
+            }
+
+            const tableTemplate = document.querySelector('#row_template');
+            const tableTemplateTarget = document.querySelector('#row_template_target');
+
+            <%if (user && user.id) { %>
+                const adminID = "<%= user.id%>"
+            <%} else { %>
+                const adminID = "WEB ADMIN CONSOLE"
+            <%}%>
+
+            const onError = (error) => {
+
+            }
+            const updatePlayers = () => {
+                tableTemplateTarget.innerHTML = ""
+                let index = 0
+
+                fetch("/mod/get", {
+                    method: "POST",
+                }).then(data => data.json()).then(data => {
+                    for (const steamID in data) {
+                        const info = data[steamID]
+
+                        const clone = tableTemplate.cloneNode(true)
+                        tableTemplateTarget.appendChild(clone)
+
+                        clone.querySelector('[data-index]').innerHTML = index
+                        clone.querySelector('[data-admin]').innerHTML = info.a ? "관리자" : ""
+                        clone.querySelector('[data-name]').innerHTML = info.n
+                        clone.querySelector('[data-gamename]').innerHTML = info.rn
+                    
+                        clone.querySelector('[data-warn]').onclick = () => {
+                            reason = window.prompt("사유를 적어주세요.", "서버 규칙을 어지럽히는 행위.");
+                            
+                            if (!reason) { return } // 아무 이유가 없음.
+                            console.log(reason)
+
+                            fetch("/api/warn/add", {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json;charset=UTF-8'
+                                },
+                                method: "POST",
+                                body: JSON.stringify({
+                                    steamID: steamID,
+                                    charName: info.n,
+                                    adminID: adminID,
+                                    reason: reason
+                                })
+                            }).then(data => {
+                                console.log(data)
+                                notime(`성공적으로 ${info.n}님에게 경고를 먹였습니다.`, 'is-success')
+                            }).catch(error => {
+                                
+                                console.log(error)
+                            })
+                        }
+                        clone.querySelector('[data-kick]').onclick = () => {
+                            reason = window.prompt("사유를 적어주세요.", "서버 규칙을 어지럽히는 행위.");
+                            
+                            if (!reason) { return } // 아무 이유가 없음.
+                            console.log(reason)
+
+                            fetch("/mod/kick", {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json;charset=UTF-8'
+                                },
+                                method: "POST",
+                                body: JSON.stringify({
+                                    steamID: steamID,
+                                    charName: info.n,
+                                    adminID: adminID,
+                                    reason: reason
+                                })
+                            }).then(data => {
+                                notime(`성공적으로 ${info.n}님을 강제 퇴장시켰습니다.`, 'is-success')
+                                updatePlayers()
+                            }).catch(error => {
+                                console.log(error)
+                            })
+                        }
+                        clone.querySelector('[data-ban]').onclick = () => {
+                            let duration = window.prompt("제한시킬 분을 적어주세요.", "0");
+                            if (!duration) { return }
+                            let reason = window.prompt("사유를 적어주세요.", "서버 규칙을 어지럽히는 행위.");
+                            if (!reason) { return }
+            
+                            if (steamID && reason && duration && !isNaN(parseInt(duration))) {
+                                fetch("/api/ban/add", {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json;charset=UTF-8'
+                                    },
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        steamID: steamID,
+                                        lastName: info.n,
+                                        adminID: adminID,
+                                        duration: duration * 60,
+                                        reason: reason
+                                    })
+                                }).then(data => {
+                                    notime(`성공적으로 ${info.n}님을 제한 모드시켰습니다.`, 'is-success')
+                                    updatePlayers()
+                                }).catch(error => {
+            
+                                })
+                            } else {
+                                notime("올바르지 않은 요청입니다.", "is-danger")
+                            }
+                        }
+
+                        index++
+                    }
+                }).catch(error => {
+                    
+                })
+            }
+            updatePlayers()
+        </script>
+		<%- include('footer', {user: user}); %>
+	</body>
+</html>

@@ -1,0 +1,142 @@
+<html>
+	<head>
+		<%- include('includes'); %>
+	</head>
+
+	<body>
+		<script>
+			const goToNextPage = (page) => {
+				if (<%=logs.length%> < <%= rows %>) {
+					alert("다음 페이지에 로그가 없습니다.")
+					return
+				}
+				const search = "<%=filter.search%>"
+				const type = "<%=filter.type%>"
+				window.location = "/logmate?page="+(page + 1)+"&type="+type+"&search="+search
+			}
+			const goToPrevPage = (page) => {
+				if (page == 0) {
+					alert("더 이상 이전 페이지가 존재하지 않습니다.")
+					return
+				}
+				const search = "<%=filter.search%>"
+				const type = "<%=filter.type%>"
+				window.location = "/logmate?page="+(page - 1)+"&type="+type+"&search="+search
+			}
+			const goToThatPage = (event) => {
+				if (event.target) {
+					const search = "<%=filter.search%>"
+					const type = "<%=filter.type%>"
+					window.location = "/logmate?page="+(event.target.value)+"&type="+type+"&search="+search
+				}
+			}
+			const searchBois = (page) => {
+				const search = document.querySelector("#search_bar");
+				const searchType = document.querySelector("#search_type");
+
+				window.location = "/logmate?page=0&type="+searchType.options[searchType.selectedIndex].value+"&search="+search.value
+			}
+		</script>
+		<%
+			const categoryName = {
+				3:  "일반",
+				4:  "연결",
+				5:  "데미지",
+				7:  "프롭",
+				29: "명령어",
+				30: "캐릭터",
+				31: "아이템",
+				32: "경제",
+				33: "채팅",
+				34: "범죄",
+				35: "법",
+				36: "맵",
+				98: "WEB",
+				99: "관리",
+			}
+		%>
+		<%- include('header', {user: user}); %>
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container">
+					<%if (user && user.displayName) { %>
+						<h1 class="title">
+							환영합니다, <%user.displayName%>
+						</h1>
+						<h2 class="subtitle">
+							귀하의 정보 접근 레벨은 <%= user.isAdministrator || 0%>입니다. 
+						</h2>
+					<%} else { %>
+						<h1 class="title">
+							서버정보시스템
+						</h1>
+						<h2 class="subtitle">
+							서버정보시스템에 오신것을 환영합니다. 이곳에서 서버에 관한 정보 및 패치 내용을 볼 수 있습니다. 
+						</h2>
+					<%}%>
+				</div>
+			</div>
+		</section>
+
+		<div class="container" style="margin-top: 20px; margin-bottom: 20px">
+			<div class="field has-addons has-addons-centered">
+				<p class="control">
+					<span class="select">
+						<select id="search_type">
+							<option value="0">메세지</option>
+							<option value="1">스팀ID</option>
+							<option value="2">캐릭터 이름</option>
+							<option value="3">종류</option>
+							<option value="4">시간</option>
+						</select>
+					</span>
+				</p>
+				<p class="control" style="width: 300px">
+					<input class="input" type="text" placeholder="검색할 키워드" value="<%= filter.search  %>" id="search_bar"
+						onkeypress="if (event.keyCode==13) {searchBois(<%= page %>); return false;}">
+				</p>
+				<p class="control">
+					<a class="button is-primary" onclick="searchBois(<%= page %>)">
+						검색
+					</a>
+				</p>
+			</div>
+
+			<%- include('components/paginator', {page: page}); %>
+
+			<table class="table" style="width: 100%">
+				<thead>
+					<tr>
+						<th style="text-align: center" width="15.66%">시간</th>
+						<th style="text-align: center" width="10.66%">아이디</th>
+						<th style="text-align: center" width="15.66%">이름</th>
+						<th style="text-align: center" width="9%">종류</th>
+						<th style="text-align: center" width="39.66%">로그 메세지</th>
+						<th style="text-align: center" width="4.66%"></th>
+						<th style="text-align: center" width="4.66%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<%if (logs) { %>
+						<% logs.forEach(function(logInfo) { %>
+							<%- include('components/row', {moment: moment, logInfo: logInfo, categoryName: categoryName}); %>
+						<% }); %>
+					<% } %>
+				</tbody>
+			</table>
+			
+			<%- include('components/paginator', {page: page}); %>
+
+			<%- include('components/modal-log'); %>
+		</div>
+		<%- include('footer', {user: user}); %>
+
+		<script>
+			const searchType = document.querySelector("#search_type");
+			const currentType = "<%=filter.type%>"
+			if (currentType && currentType != "") {
+				searchType.value = currentType;
+			}
+		</script>
+	</body>
+</html>

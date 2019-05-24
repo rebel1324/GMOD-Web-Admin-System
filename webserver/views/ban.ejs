@@ -1,0 +1,168 @@
+<html>
+	<head>
+		<%- include('includes'); %>
+	</head>
+
+	<body>
+        <%- include('header', {user: user}); %>
+        <%
+            String.prototype.toHHMMSS = function () {
+                var sec_num = parseInt(this, 10); // don't forget the second param
+                var hours   = Math.floor(sec_num / 3600);
+                var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+                var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+                if (hours   < 10) {hours   = "0"+hours;}
+                if (minutes < 10) {minutes = "0"+minutes;}
+                if (seconds < 10) {seconds = "0"+seconds;}
+                return hours+'시간 '+minutes+'분 '+seconds +'초';
+            }
+        %>
+
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container">
+					<%if (user && user.displayName) { %>
+						<h1 class="title">
+							환영합니다, <%user.displayName%>
+						</h1>
+						<h2 class="subtitle">
+							귀하의 정보 접근 레벨은 <%= user.isAdministrator || 0%>입니다. 
+						</h2>
+					<%} else { %>
+						<h1 class="title">
+							서버정보시스템
+						</h1>
+						<h2 class="subtitle">
+							서버정보시스템에 오신것을 환영합니다. 이곳에서 서버에 관한 정보 및 패치 내용을 볼 수 있습니다. 
+						</h2>
+					<%}%>
+				</div>
+			</div>
+		</section>
+
+        <div class="container" style="margin-top: 20px; margin-bottom: 20px; min-height: 500px">
+			<div class="notification" id="noti" hidden>
+				<button class="delete" onclick="hideme()""></button>
+				<div id="notitext">
+					Primar lorem ipsum dolor sit amet, consectetur
+					adipiscing elit lorem ipsum dolor. <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus diam, et dictum <a>felis venenatis</a> efficitur. Sit amet,
+					consectetur adipiscing elit
+				</div>
+			</div>
+
+            <div style="margin-bottom: 25px">
+                <a class="button is-primary" onclick="addBan()">
+                    <strong>밴 추가</strong>
+                </a>
+            </div>
+
+			<table class="table" style="width: 100%">
+				<thead>
+					<tr>
+                        <th style="text-align: center" width="11%">제재 시간</th>
+                        <th style="text-align: center" width="13%">대상 ID</th>
+                        <th style="text-align: center" width="13%">캐릭 ID</th>
+                        <th style="text-align: center" width="13%">관리자 ID</th>
+                        <th style="text-align: center" width="15%">기간</th>
+                        <th style="text-align: center" width="20.5%">이유</th>
+                        <th style="text-align: center" width="5.5%">조정</th>
+					</tr>
+				</thead>
+				<tbody>
+                    <%if (bans) { %>
+                        <% bans.forEach(function(banInfo) { %>
+                            <% console.log(banInfo) %>
+                            <%- include('components/ban', {moment: moment, banInfo: banInfo}); %>
+                        <% }); %>
+                    <% } %>
+				</tbody>
+			</table>
+		</div>
+
+		<script>
+			const notiDOM = document.querySelector('#noti');
+			const notiContextDOM = document.querySelector('#notitext');
+			const hideme = event => {
+				notiDOM.setAttribute("hidden", true); 
+			}
+			const notime = (text, newClass) => {
+				if (newClass) {
+					notiDOM.classList.remove("is-link")
+					notiDOM.classList.remove("is-primary")
+					notiDOM.classList.remove("is-info")
+					notiDOM.classList.remove("is-warning")
+					notiDOM.classList.remove("is-danger")
+					notiDOM.classList.remove("is-success")
+
+					notiDOM.classList.add(newClass);
+				}
+
+				notiDOM.removeAttribute("hidden")
+				notiContextDOM.innerHTML = text
+			}
+
+            <%if (user && user.id) { %>
+                const adminID = "<%= user.id%>"
+            <%} else { %>
+                const adminID = "WEB ADMIN CONSOLE"
+			<%}%>
+			
+			const removeBan = (steamID) => {
+				fetch("/api/ban/remove", {
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json;charset=UTF-8'
+					},
+					method: "POST",
+					body: JSON.stringify({
+						steamID: steamID,
+						adminID: adminID,
+					})
+				}).then(data => {
+					setTimeout(() => {
+						location.reload()
+					}, 333)
+				}).catch(error => {
+					notime("올바르지 않은 요청입니다.", "is-danger")
+				})
+			}
+			const addBan = () => {
+				let steamID = window.prompt("제한을 걸 STEAMID를 알려주세요.", "");
+				if (!steamID) { return }
+                let duration = window.prompt("제한시킬 분을 적어주세요.", "0");
+				if (!duration) { return }
+                let reason = window.prompt("사유를 적어주세요.", "서버 규칙을 어지럽히는 행위.");
+				if (!reason) { return }
+                let comment = window.prompt("이름을 적어주세요", "병신");
+				if (!comment) { return }
+
+                if (steamID && reason && comment && duration && !isNaN(parseInt(duration))) {
+					fetch("/api/ban/add", {
+						headers: {
+							'Accept': 'application/json',
+							'Content-Type': 'application/json;charset=UTF-8'
+						},
+						method: "POST",
+						body: JSON.stringify({
+							steamID: steamID,
+							lastName: comment,
+							adminID: adminID,
+							duration: duration * 60,
+							reason: reason
+						})
+					}).then(data => {
+						setTimeout(() => {
+							location.reload()
+						}, 333)
+					}).catch(error => {
+
+					})
+                } else {
+					notime("올바르지 않은 요청입니다.", "is-danger")
+				}
+			}
+		</script>
+		<%- include('footer', {user: user}); %>
+	</body>
+</html>

@@ -1,0 +1,26 @@
+<%const dateString = moment(banInfo.date)%>
+<tr>
+    <td style="text-align: center">
+        <%= dateString.format('YYYY-MM-DD hh:mm:ss') %>
+    </td>       
+    <td style="text-align: center">
+        <a><%= banInfo.steamID %></a>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <a><%= banInfo.lastName %></a>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= banInfo.adminID %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= 
+         banInfo.durationActual.toHHMMSS()
+        %>
+    </td>
+    <td style="text-align: center; text-overflow: ellipsis;">
+        <%= banInfo.reason %>
+    </td>
+    <td style="text-align: center">
+        <a onclick="removeBan('<%= banInfo.steamID %>')">삭제</a>
+    </td>
+</tr>

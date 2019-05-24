@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<%- include('includes'); %>
+	</head>
+
+	<body>
+		<%- include('header', {user: user}); %>
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container">
+                    <h1 class="title">
+                        서버 OOC 채팅
+                    </h1>
+                    <h2 class="subtitle">
+                        이곳에서 OOC 채팅을 하실 수 있습니다.
+                    </h2>
+				</div>
+			</div>
+		</section>
+
+		<div class="container" style="margin-top: 20px; margin-bottom: 20px">
+            채팅 구역
+            <div class="container" style="margin-top: 20px; margin-bottom: 20px; padding: 10px 20px; background: #dedede; height: 500px; overflow-y: auto" id="chat">
+                
+            </div>
+            <div class="field has-addons" style="width: 100%">
+                <p class="control" style="width: 100%">
+                    <input id="chatText" class="input" type="text" placeholder="이곳에 메세지를 적어주세요" onkeypress="return keyPressEvent(event)">
+                </p>
+                <p class="control" style="width: 10%; max-width: 100px">
+                    <a class="button" style="width: 100%" onclick="sendMessage()">
+                        전송
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <style>
+            .chatRow {
+
+            }
+
+            .chatRow span {
+                font-weight: bold;
+            }
+        </style>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            function keyPressEvent(event) {
+                if (event.keyCode == 13) {
+                    sendMessage(event)
+                }
+            }
+
+            var socket = io('https://admin.bareungak.xyz/chat');
+
+            socket.on('oocChat', (data) => {
+                const chatInfo = JSON.parse(data)
+                const chatlog = document.querySelector('#chat')
+
+                chatlog.innerHTML += ("<p class='chatRow'><span style='color:" + chatInfo.col + "'>" + chatInfo.name + "</span>: " + chatInfo.txt + "</p>")
+            });
+            
+            socket.on('serverMsg', (chatInfo) => {
+                const chatlog = document.querySelector('#chat')
+
+                chatlog.innerHTML += (`<p class='chatRow'>${chatInfo.text}</p>`)
+            })
+
+            const sendMessage = (event) => {
+                const chatlog = document.querySelector('#chatText')
+                const text = chatlog.value
+                if (text && text.length > 0) {
+                    socket.emit('chatToServer', chatlog.value)
+                    chatlog.value = ""
+                }
+            }
+        </script>
+
+		<%- include('footer', {user: user}); %>
+	</body>
+</html>
