@@ -21,6 +21,6 @@
     "normalize.css": "^8.0.1",
     "passport": "^0.4.0",
     "passport-steam": "^1.0.10",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.4.0"
   }
 }
